@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: goodstrace1
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/goodstrace?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=UTC
+    username: root
+    password: root
+server:
+  port: 8088
+webase:
+  front:
+    url: http://43.135.161.127:5002
+system:
+  contract:
+    traceAddress: 0x9d4e44eff69009e54b950aad57ae482ffa112200
+    producerAddress: 0x9e1b25a5c22b42eea481a46de2586175934f4c6c
+    distributorAddress: 0xeb27cecc83f1c2adb76f9fd24a81c60be7458ae2
+    retailerAddress: 0x350b0e3b649cd1b7bacc5783d3e3a79883d28443
+    admin: 0xe87e6d8569a87d184722462d43503379ae208a02
