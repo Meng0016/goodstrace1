@@ -60,11 +60,109 @@ export default {
   },
   props: ['dialogFormVisible'],
   mounted() {
-    document.addEventListener()
+    document.addEventListener('keydown', this.handleScannerInput);
+  },
+  beforeDestroy() {
+    document.removeEventListener('keydown', this.handleScannerInput);
+  },
+  methods: {
+    handleClose(){
+      this.dialogFormVisible = false;
+      this.$emit('popup', false);
+    },
+    handleScannerInput(e) {
+      if (!this.scanData){
+        this.scanData = ''
+      }
+      if (e.key !== 'Enter') {
+        this.scanData += e.key;
+      }else{
+        this.fillFormData(this.scanData);
+        this.scanData = '';
+      }
+    },
+    fillFormData(traceNumber) {
+      const data = this.testData[traceNumber];
+      if (data) {
+        data.traceNumber = parseInt(traceNumber);
+        this.formSubmit(data);
+      }else{
+        console.error('没有该溯源码',traceNumber);
+        alert('扫描的溯源码无效，请重新扫描！');
+      }
+    },
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          console.log(this.form)
+          this.$emit('confirmPopup', this.form);
+          alert('提交成功');
+        } else {
+          alert('提交失败，请检查输入');
+          return false;
+        }
+      });
+    },
+    formSubmit(data){
+      axios({
+        method: 'post',
+        url: '/produce',
+        data: {
+          ...data,
+          quality: parseInt(data.quality),
+          producerAddress: localStorage.getItem('account')
+        }
+      }).then(ret =>{
+        if (ret.data.ret !== 1){
+          if (ret.data.ret === 0 && ret.data.msg === 'traceNumber already exists'){
+            this.$message({
+              message: '该溯源码已存在',
+              type: 'error',
+              center: true
+            });
+          }else {
+            this.$message({
+              message: '提交失败',
+              type: 'error',
+              center: true
+            });
+          }
+          return;
+        }
+        this.$blockInfo.setBlockInfo("Pro" + data.traceNumber,ret.data.data);
+        console.log(this.$blockInfo.getBlockInfo("Pro" + data.traceNumber));
+        this.$message({
+          message: '提交成功',
+          type: 'success',
+          center: true
+        });
+      }).catch(err => {
+        console.error(err);
+      });
+      this.popup = false;
+    }
+
   }
 }
 </script>
 
 <style scoped>
-
+.custom-dialog {
+  border-radius: 10px;
+  border: 2px solid #409EFF;
+  font-family: 'Arial', sans-serif;
+}
+.rounded-input {
+  border-radius: 5px;
+  border: 1px solid #409EFF;
+  padding: 8px;
+}
+.dialog-footer {
+  text-align: center;
+  margin-top: 20px;
+}
+.dialog-footer .el-button {
+  margin-right: 10px;
+  border-radius: 5px;
+}
 </style>
